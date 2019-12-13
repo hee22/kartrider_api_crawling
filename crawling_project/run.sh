@@ -1,2 +1,2 @@
 cd cartrider
-scrapy crawl Cartrider -o cart.csv
+scrapy crawl Cartrider

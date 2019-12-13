@@ -1,17 +1,14 @@
-
 import pandas as pd
 import json
+import pymongodb
 
 class CartPre:
     
     def __init__(self):
-        self.data1 = pd.read_csv("cartrider/cart.csv")
-        self.data2 = pd.read_csv("cartrider/cart1.csv")
-        self.df1 = pd.DataFrame(self.data1)
-        self.df2 = pd.DataFrame(self.data2)
-        self.df = pd.concat([self.df1,self.df2], axis=0, ignore_index=True)
+        self.df = pymongodb.df
         
     def preprocess(self):
+        self.df = self.df.drop("_id", axis = 1)
         track_null = list(self.df.loc[self.df["trackId"].isnull()].index)
         self.df = self.df.drop(track_null).reset_index(drop=True)
         column_ununi = list(self.df.loc[self.df["kart"] == "kart"].index)
@@ -20,7 +17,12 @@ class CartPre:
         self.df.loc[self.df["matchRank"] == 99,"matchRank"] = "8"
         self.df.loc[self.df["matchRank"] == "NaN","matchRank"] = "8"
         self.df.loc[self.df["matchRank"].isnull(),"matchRank"] = "8"
+        self.df.loc[self.df["matchRank"] == "","matchRank"] = "8"
         self.df["matchRank"] = self.df["matchRank"].astype("int")
+        kart_null = list(self.df.loc[self.df["kart"] == ""].index)
+        self.df = self.df.drop(kart_null).reset_index(drop=True)
+        track_null = list(self.df.loc[self.df["trackId"] == ""].index)
+        self.df = self.df.drop(track_null).reset_index(drop=True)
         self.df1 = self.df.groupby("kart").size().reset_index()
         self.df1.sort_values(by = 0,ascending=False)
         self.df1 = self.df1.rename(columns={0:"count"})
